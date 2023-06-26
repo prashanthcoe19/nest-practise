@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { hash } from 'bcrypt';
+import { Exclude } from 'class-transformer';
 @Schema({
   timestamps: true,
 })
@@ -12,6 +13,9 @@ export class User extends Document {
   email: string;
 
   @Prop({ required: true })
+  @Exclude({
+    toPlainOnly: true
+  })
   password: string;
 }
 

@@ -16,12 +16,19 @@ import { Request } from 'express';
 import { User } from 'src/auth/auth.model';
 import { UserWithId } from 'src/auth/user.interface';
 import { CurrentUser } from 'src/common/current-user';
-
+import {
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+  ApiBody,
+  ApiBearerAuth
+} from '@nestjs/swagger';
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post()
   async insert(
     @Body() createProductDto: ProductDto,
@@ -35,6 +42,7 @@ export class ProductsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get()
   async getAllProducts() {
     const products = await this.productsService.getProducts();
@@ -42,6 +50,7 @@ export class ProductsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get(':id')
   async getProduct(@Param('id') prodId: string) {
     const product = await this.productsService.getProduct(prodId);
@@ -49,6 +58,7 @@ export class ProductsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Put(':id')
   async updateProduct(
     @Param('id') prodId: string,
@@ -62,6 +72,7 @@ export class ProductsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Delete(':id')
   async deleteProduct(@Param('id') prodId: string) {
     await this.productsService.deleteProduct(prodId);

@@ -9,14 +9,18 @@ import {
   Validate,
 } from 'class-validator';
 
+import { ApiProperty } from '@nestjs/swagger';
+
 export class CreateUserDto {
   @IsNotEmpty()
   @IsString()
+  @ApiProperty()
   name: string;
 
   @IsNotEmpty()
   @IsEmail()
   @IsLowercase()
+  @ApiProperty()
   email: string;
 
   @IsNotEmpty()
@@ -33,5 +37,6 @@ export class CreateUserDto {
         'password should contain at least one lowercase letter, one uppercase letter, one numeric digit, and one special character',
     },
   )
+  @ApiProperty()
   password: string;
 }
