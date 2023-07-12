@@ -21,10 +21,14 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
   ApiBody,
-  ApiBearerAuth
+  ApiBearerAuth,
+  ApiTags,
+  ApiResponse
 } from '@nestjs/swagger';
+import { UserProfileDto } from './dto/user-profile.dto';
+import { UserWithId } from './user.interface';
 
-
+@ApiTags('user')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -32,7 +36,7 @@ export class AuthController {
   @Post('/register')
   @ApiCreatedResponse({description: 'User Register'})
   @ApiBody({type: CreateUserDto})
-  register(@Body() createUserDto: CreateUserDto) {
+  register(@Body() createUserDto: CreateUserDto): Promise<UserWithId> {
     return this.authService.create(createUserDto);
   }
 
@@ -48,12 +52,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('/profile')
   @ApiBearerAuth()
-  async profile(@Req() req: Request, @CurrentUser() userId: string) {
+  @ApiResponse({status: 200, type: UserProfileDto})
+  async profile(@Req() req: Request, @CurrentUser() userId: string):Promise<UserWithId> {
     // const user = instanceToPlain(req.user,{excludePrefixes:['password']});
     return await this.authService.getProfile(userId);
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Put('/profile/:id')
   async update(@Body() updateUserDto: UpdateUserDto, @Req() req: Request) {
     let user = await this.authService.update(req.params.id, updateUserDto);
@@ -61,6 +67,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtRefreshGuard)
+  @ApiBearerAuth()
   @Get('refresh')
   async refreshToken(@Req() req: Request){
     console.log(req);

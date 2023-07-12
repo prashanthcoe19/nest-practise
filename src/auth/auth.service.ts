@@ -10,11 +10,11 @@ import { UnprocessableEntityException } from '@nestjs/common/exceptions';
 import { JwtService } from '@nestjs/jwt';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ForbiddenException } from '../common/forbidden-exception';
-import { CurrentUser } from 'src/common/current-user';
 import { UserWithId } from './user.interface';
 import { jwtConstants } from './constants';
 
 import * as moment from "moment";
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -23,7 +23,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<UserWithId> {
     let user = await this.userModal.findOne({email: createUserDto.email});
     if(user){
       throw new ForbiddenException();
@@ -35,7 +35,7 @@ export class AuthService {
     return res;
   }
 
-  async login(userLoginDto: UserLoginDto) {
+  async login(userLoginDto: UserLoginDto): Promise<Object> {
     try{
       const { email, password } = userLoginDto;
     const user = await this.userModal.findOne({ email: email });
@@ -73,12 +73,12 @@ export class AuthService {
     }
   }
 
-  async getProfile(id: string){
-     const user = await this.userModal.findById(id);
+  async getProfile(id: string): Promise<UserWithId>{
+     const user = await this.userModal.findById(id).select('-password');
      return user;
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserWithId> {
     let user = await this.userModal.findOne({ _id: id });
     if (!user) {
       throw new NotFoundException('User does not exists');
@@ -89,7 +89,7 @@ export class AuthService {
     return res;
   }
 
-  private async generateTokens(payload: any, tokenId: string) {
+  private async generateTokens(payload: any, tokenId: string): Promise<Object> {
     const {password,iat,exp, ...newPayload} = payload;
     const  accessToken  = this.jwtService.sign(newPayload);
 
